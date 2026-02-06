@@ -1,0 +1,18 @@
+# .NET
+bin/
+obj/
+
+# User-specific files
+.vs/
+.vscode/
+
+# Secrets
+appsettings.Development.json
+appsettings.Local.json
+
+# Logs
+*.log
+
+# OS
+Thumbs.db
+.DS_Store
