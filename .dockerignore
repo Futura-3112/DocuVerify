@@ -1,0 +1,14 @@
+[b|B]in/
+[o|O]bj/
+.git/
+.github/
+.vs/
+.settings/
+coverage/
+test-results/
+*.user
+*.suo
+*.launch
+.env
+Dockerfile
+docker-compose.yml
