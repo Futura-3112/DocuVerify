@@ -1,9 +1,14 @@
-[b|B]in/
-[o|O]bj/
-.git/
-.github/
-.vs/
-.settings/
+**/.git
+**/.github
+**/.vs
+**/.vscode
+**/.idea
+**/.settings
+**/bin
+**/obj
+**/node_modules
+**/dist
+**/build
 coverage/
 test-results/
 *.user
@@ -12,3 +17,4 @@ test-results/
 .env
 Dockerfile
 docker-compose.yml
+docker-compose.override.yml

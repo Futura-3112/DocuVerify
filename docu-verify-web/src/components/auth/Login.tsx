@@ -1,36 +1,56 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { User, LogIn, AlertCircle, Loader2 } from 'lucide-react';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from './firebase';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, AuthError } from 'firebase/auth';
+import { auth } from '../../config/firebase';
 import { motion } from 'framer-motion';
 
-function Login({ onLogin, onGuestContinue }) {
+interface LoginProps {
+    onGuestContinue: () => void;
+}
+
+const Login: React.FC<LoginProps> = ({ onGuestContinue }) => {
     const [isSignUp, setIsSignUp] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
         setLoading(true);
 
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(email)) {
+            setError('Please enter a valid email address.');
+            setLoading(false);
+            return;
+        }
+
         try {
             if (isSignUp) {
-                await createUserWithEmailAndPassword(auth, email, password);
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                await sendEmailVerification(userCredential.user);
+                alert('Account created! A verification email has been sent to ' + email);
             } else {
                 await signInWithEmailAndPassword(auth, email, password);
             }
-            // Auth state listener in App.jsx will handle navigation
-        } catch (err) {
+            // Auth state listener in App.tsx will handle navigation
+        } catch (err: any) {
             console.error(err);
+            const firebaseError = err as AuthError;
             let msg = 'Authentication failed. Please check your credentials.';
-            if (err.code === 'auth/weak-password') msg = 'Password should be at least 6 characters.';
-            if (err.code === 'auth/email-already-in-use') msg = 'This email is already registered.';
-            if (err.code === 'auth/user-not-found') msg = 'No account found with this email.';
-            if (err.code === 'auth/wrong-password') msg = 'Incorrect password.';
-            setError(msg);
+            if (firebaseError.code === 'auth/weak-password') msg = 'Password should be at least 6 characters.';
+            if (firebaseError.code === 'auth/email-already-in-use') msg = 'This email is already registered.';
+            if (firebaseError.code === 'auth/user-not-found') msg = 'No account found with this email.';
+            if (firebaseError.code === 'auth/wrong-password') msg = 'Incorrect password.';
+
+            // Helpful message for disabled providers
+            if (firebaseError.code === 'auth/operation-not-allowed') {
+                msg = 'Email/Password login is not enabled in Firebase Console.';
+            }
+
+            setError(`${msg} (${firebaseError.code})`);
         } finally {
             setLoading(false);
         }
@@ -149,6 +169,6 @@ function Login({ onLogin, onGuestContinue }) {
             </motion.div>
         </div>
     );
-}
+};
 
 export default Login;
