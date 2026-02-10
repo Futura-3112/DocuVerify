@@ -12,6 +12,7 @@ public class AppDbContext : DbContext
     public DbSet<Process> Processes => Set<Process>();
     public DbSet<Document> Documents => Set<Document>();
     public DbSet<Requirement> Requirements => Set<Requirement>();
+    public DbSet<User> Users => Set<User>();
 
     public override int SaveChanges()
     {
